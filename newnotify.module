@@ -1,0 +1,135 @@
+<?php
+
+
+use Drupal\node\Entity\Node;
+
+
+
+
+
+function newnotify_mail($key, &$message, $params) {
+ $options = array(
+   'langcode' => $message['langcode'],
+ );
+ switch ($key) {
+   case 'general_mail':
+     $message['from'] = \Drupal::config('system.site')->get('mail');
+     $message['subject'] = t('General mail: @subject', ['@subject' => $params['subject']], $options);
+     $message['body'][] = $params['message'];
+     break;
+ }
+}
+
+
+
+
+
+
+
+
+$query = \Drupal::entityQuery('node');
+$nids = $query
+    ->condition('type', 'ticket', 'IN')
+    ->condition('status', 1)
+    ->condition('created', strtotime('-4 week'), '<=')
+    ->execute();
+
+$field_boolean = 'field_remindersent';
+$set_to = 1; // 0 to uncheck, 1 to check
+$count_fixed = 0;
+
+print_r($nids);
+
+echo $count_fixed;
+
+
+
+foreach ($nids as $nid) {
+
+echo $nid;
+echo  '   ';
+
+    $node = \Drupal\node\Entity\Node::load($nid);
+ 
+     if($node->get('field_user_initial_accounts')->value == 1 && $node->get('field_remindersent')->value == 0) {
+  
+    $node->set($field_boolean, $set_to);
+ 
+// Mail code to implement  
+/*  
+$mailManager = \Drupal::service('plugin.manager.mail');
+$module = 'newnotify';
+$key = 'general_mail';
+$to = "mail@mail.com";
+$params['message'] = "It's been 4 weeks. Go over your checklist again";
+$params['subject'] = "Onboarding checklist review";
+$langcode = \Drupal::currentUser()->getPreferredLangcode();
+$send = true;
+$result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+if ($result['result'] !== true) {
+  drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+}
+else {
+  drupal_set_message(t('Your message has been sent.'));
+}
+ */
+ 
+ 
+ 
+ 
+ 
+ 
+    $count_fixed++;
+  }
+}
+
+
+
+print_r($nids);
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+function newnotify_cron() {
+
+  // We access our configuration.
+  // $cron_config = \Drupal::config('cron_example.settings');
+
+  // Default to an hourly interval. Of course, cron has to be running at least
+  // hourly for this to work.
+  $interval = $cron_config
+    ->get('interval');
+  $interval = !empty($interval) ? $interval : 3600;
+
+  // We usually don't want to act every time cron runs (which could be every
+  // minute) so keep a time for the next run in the site state.
+  $next_execution = \Drupal::state()
+    ->get('cron_example.next_execution', 0);
+  if (REQUEST_TIME >= $next_execution) {
+
+ 
+    \Drupal::logger('cron_example')
+      ->notice('cron_example ran');
+    if (\Drupal::state()
+      ->get('cron_example_show_status_message')) {
+      \Drupal::messenger()
+        ->addMessage(t('cron_example executed at %time', [
+        '%time' => date('c'),
+      ]));
+      \Drupal::state()
+        ->set('cron_example_show_status_message', FALSE);
+    }
+    \Drupal::state()
+      ->set('cron_example.next_execution', REQUEST_TIME + $interval);
+  }
+}
+
