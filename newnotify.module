@@ -36,7 +36,7 @@ foreach ($nids as $nid)
 
     echo $nid;
     echo '   ';
-
+    $uname = $node->field_assigned_to->entity;
     $node = \Drupal\node\Entity\Node::load($nid);
 
     if ($node->get('field_user_initial_accounts')->value == 1 && $node->get('field_remindersent')->value == 0)
@@ -49,7 +49,7 @@ foreach ($nids as $nid)
         $mailManager = \Drupal::service('plugin.manager.mail');
         $module = 'newnotify';
         $key = 'general_mail';
-        $to = "mail@mail.com";
+        $to = $uname . "@gmu.edu";
         $params['message'] = "It's been 4 weeks. Go over your checklist again";
         $params['subject'] = "Onboarding checklist review";
         $langcode = \Drupal::currentUser()->getPreferredLangcode();
