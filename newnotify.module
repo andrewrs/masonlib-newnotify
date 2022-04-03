@@ -34,8 +34,7 @@ echo $count_fixed;
 foreach ($nids as $nid)
 {
 
-    echo $nid;
-    echo '   ';
+
     $uname = $node->field_assigned_to->entity;
     $node = \Drupal\node\Entity\Node::load($nid);
 
@@ -67,7 +66,7 @@ foreach ($nids as $nid)
     }
 }
 
-print_r($nids);
+
 
 function newnotify_cron()
 {
